@@ -1,8 +1,42 @@
-# Multi-Agent Prescribed Performance Control (PPC) - C++ Simulation
+# Multi-Agent Prescribed Performance Control (PPC) Engine
 
-This project is a high-performance C++ translation of a MATLAB-based Discrete-Time Prescribed Performance Control (PPC) simulation for multi-agent systems. It models a system of 4 follower agents tracking a leader under prescribed operational bounds and discrete-time communication.
+## Overview
 
-The core math is handled utilizing **Eigen**, and the stiff ODE integration is driven by **Boost.Odeint** (using the explicit adaptive `runge_kutta_dopri5` stepper).
+This repository contains a high-performance **C++ simulation engine** for the Prescribed Performance Control (PPC) of nonlinear Multi-Agent Systems (MAS) under discrete-time communication constraints.
+
+Originally prototyped in MATLAB for academic research, this project was entirely re-architected into a **C++ hybrid simulation environment**. It decouples the discrete-time communication updates from the continuous-time physical dynamics, ensuring numerical stability when solving the stiff ordinary differential equations (ODEs) that govern the system.
+
+## Core Technologies
+
+- **C++17**: Core engine language.
+- **Eigen3**: Utilized for heavily optimized, vectorized linear algebra operations and spatial transformations.
+- **Boost.Numeric.Odeint**: Handles the continuous integration of the system's dynamics (utilizing an adaptive Runge-Kutta Dopri5 stepper).
+- **CMake**: Build system generation and dependency linking.
+
+## Architecture Highlights
+
+Unlike standard academic simulations that mix discrete and continuous states, this engine uses a **Hybrid Loop Architecture**:
+
+- **Discrete Event Handling**: Neighbor states and network topology data are updated strictly at the communication interval $T_{mati}$. During the continuous integration phase $t \in [t_k, t_{k+1})$, the received states are held as step-wise constant values in memory, accurately simulating the physical reality of a discrete-time sensor network.
+- **Continuous Integration**: Between communication pulses, the physical system dynamics and barrier functions are integrated using highly accurate adaptive step sizing.
+- **Barrier Functions**: The control law utilizes nonlinear barrier functions (tangent transformations) to mathematically guarantee that position and velocity tracking errors never violate the dynamically decaying prescribed performance bounds.
+
+### Hybrid Continuous/Discrete Simulation
+
+A key aspect of this simulation is the separation between **continuous local dynamics** and **discrete agent communication**:
+
+- Each agent's **own state** $(x_{i,1}, x_{i,2})$ evolves **continuously** — the ODE integrator advances these states at every sub-step with full numerical precision.
+- The **neighbor reference signals** (received states from other agents) are only transmitted at discrete communication instants $t_k = k \cdot T_{mati}$ and are **held constant** until the next communication event at $t_{k+1}$.
+
+This means that during the interval $[t_k, t_{k+1})$, each agent computes its control law using its own **live, continuously evolving state** combined with the **frozen snapshot** of its neighbors' states from time $t_k$. For example:
+
+```
+Agent 1:  e1 = x11(t)  −  x21_hold(t_k)
+                ↑                ↑
+          continuous            held
+```
+
+This faithfully models real-world networked control systems where sensors transmit data only at sampling instants, while each agent's internal dynamics continue to evolve between transmissions. The stability analysis of the PPC controller under these conditions is a central objective of the simulation.
 
 ## System Model
 

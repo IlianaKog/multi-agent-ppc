@@ -21,22 +21,34 @@ The specific nonlinear functions ($f_{i,1}, f_{i,2}, G_i$) used for the strictly
 **Agent 1:**
 - $f_{1,1} = [\sin(x_{11,1}), \cos(x_{11,2})]^T$
 - $f_{1,2} = [-2x_{12,1} - x_{12,2}, x_{11,1}^2]^T$
-$$G_1 = \begin{bmatrix} x_{11,1}^2 + 1 & \cos(x_{11,2}) \\ \sin(x_{12,1}) & x_{12,2}^2 + 4 \end{bmatrix}$$
+```
+G1 = [ x11_1^2 + 1,   cos(x11_2) ]
+     [ sin(x12_1),    x12_2^2 + 4 ]
+```
 
 **Agent 2:**
 - $f_{2,1} = [2x_{21,1}, x_{21,2}^3]^T$
 - $f_{2,2} = [x_{21,1}^2, x_{22,2}^2 - x_{21,1}^5]^T$
-$$G_2 = \begin{bmatrix} x_{21,1}^2 + 1 & \sin(x_{21,2}) \\ \cos(x_{22,1}) & x_{22,2}^2 + 1 \end{bmatrix}$$
+```
+G2 = [ x21_1^2 + 1,   sin(x21_2) ]
+     [ cos(x22_1),    x22_2^2 + 1 ]
+```
 
 **Agent 3:**
 - $f_{3,1} = [\cos^2(x_{31,1}), x_{31,1}^2]^T$
 - $f_{3,2} = [\sin(x_{32,2}) + x_{32,1}, 5x_{32,1}^3]^T$
-$$G_3 = \begin{bmatrix} x_{31,1}^2 + 1 & \cos(x_{31,1}) \\ \sin(x_{31,2}) & x_{31,1}^2 + 3 \end{bmatrix}$$
+```
+G3 = [ x31_1^2 + 1,   cos(x31_1) ]
+     [ sin(x31_2),    x31_1^2 + 3 ]
+```
 
 **Agent 4:**
 - $f_{4,1} = [\sin^2(x_{41,1}), x_{41,1}^2]^T$
 - $f_{4,2} = [\cos(x_{42,2}) + x_{42,1}, 5x_{42,1}^2]^T$
-$$G_4 = \begin{bmatrix} x_{41,1}^2 + 2 & \cos(x_{41,1}) \\ \sin(x_{41,2}) & x_{41,1}^2 + 3 \end{bmatrix}$$
+```
+G4 = [ x41_1^2 + 2,   cos(x41_1) ]
+     [ sin(x41_2),    x41_1^2 + 3 ]
+```
 
 ### Initial Conditions
 The simulation initializes the 16 continuous ODE states natively (vector `x[16]` in `main.cpp`) mapping to $x_{i,1}$ and $x_{i,2}$ components:

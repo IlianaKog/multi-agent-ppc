@@ -26,7 +26,7 @@ Unlike standard academic simulations that mix discrete and continuous states, th
 A key aspect of this simulation is the separation between **continuous local dynamics** and **discrete agent communication**:
 
 - Each agent's **own state** $(x_{i,1}, x_{i,2})$ evolves **continuously** — the ODE integrator advances these states at every sub-step with full numerical precision.
-- The **neighbor reference signals** (received states from other agents) are only transmitted at discrete communication instants $t_k = k \cdot T_{mati}$ and are **held constant** until the next communication event at $t_{k+1}$.
+- The **neighbor reference signals** (received states from other agents) are only transmitted at discrete communication instants $t_k = k \cdot T_{mati}$ and are **held constant** until the next communication time instance at $t_{k+1}$.
 
 This means that during the interval $[t_k, t_{k+1})$, each agent computes its control law using its own **live, continuously evolving state** combined with the **frozen snapshot** of its neighbors' states from time $t_k$. For example:
 

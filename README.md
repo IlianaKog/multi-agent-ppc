@@ -148,6 +148,10 @@ Execute the compiled program from PowerShell:
 ```powershell
 .\build\PPC_Simulation.exe
 ```
+If the executable fails to run due to missing DLLs, ensure the MSYS2 path is set:
+```powershell
+$env:Path += ";C:\msys64\ucrt64\bin"; .\build\PPC_Simulation.exe
+```
 You should see output indicating the integration loop has started. When finished, it will generate a large `simulation_results.csv` file consisting of ~87,000 steps of trajectory logging.
 
 ## Plotting the Results

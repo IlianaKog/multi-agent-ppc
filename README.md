@@ -135,6 +135,11 @@ cmake -B build -G "MinGW Makefiles"
 cmake --build build
 ```
 
+**Quick one-liner** (clean rebuild, also sets PATH if not already configured):
+```powershell
+Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue; $env:Path += ";C:\msys64\ucrt64\bin"; cmake -B build -G "MinGW Makefiles"; cmake --build build
+```
+
 This will create `PPC_Simulation.exe` inside the `build` folder.
 
 ## Running the Simulation

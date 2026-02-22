@@ -1,0 +1,5 @@
+# Build output
+build/
+
+# Simulation output
+simulation_results.csv

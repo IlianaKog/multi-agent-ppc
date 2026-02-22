@@ -1,0 +1,114 @@
+# Multi-Agent Prescribed Performance Control (PPC) - C++ Simulation
+
+This project is a high-performance C++ translation of a MATLAB-based Discrete-Time Prescribed Performance Control (PPC) simulation for multi-agent systems. It models a system of 4 follower agents tracking a leader under prescribed operational bounds and discrete-time communication.
+
+The core math is handled utilizing **Eigen**, and the stiff ODE integration is driven by **Boost.Odeint** (using the explicit adaptive `runge_kutta_dopri5` stepper).
+
+## System Model
+
+### Differential Equations
+Each follower agent $i \in \{1, 2, 3, 4\}$ has 2nd-order nonlinear dynamics described by:
+```math
+\begin{align*}
+\dot{x}_{i,1} &= x_{i,2} + f_{i,1}(\bar{x}_i) \\
+\dot{x}_{i,2} &= f_{i,2}(\bar{x}_i) + G_i(\bar{x}_i) u_i + z(t)
+\end{align*}
+```
+Where $\bar{x}_i = [x_{i,1}, x_{i,2}]^T$ is the full state of agent $i$, $u_i$ is the control input computed by the Discrete-Time PPC law, and $z(t)$ is a common time-varying disturbance acting on all agents. 
+
+The specific nonlinear functions ($f_{i,1}, f_{i,2}, G_i$) used for the strictly heterogeneous agents in this simulation are:
+
+**Agent 1:**
+- $f_{1,1} = [\sin(x_{11,1}), \cos(x_{11,2})]^T$
+- $f_{1,2} = [-2x_{12,1} - x_{12,2}, x_{11,1}^2]^T$
+- $G_1 = \begin{bmatrix} x_{11,1}^2 + 1 & \cos(x_{11,2}) \\ \sin(x_{12,1}) & x_{12,2}^2 + 4 \end{bmatrix}$
+
+**Agent 2:**
+- $f_{2,1} = [2x_{21,1}, x_{21,2}^3]^T$
+- $f_{2,2} = [x_{21,1}^2, x_{22,2}^2 - x_{21,1}^5]^T$
+- $G_2 = \begin{bmatrix} x_{21,1}^2 + 1 & \sin(x_{21,2}) \\ \cos(x_{22,1}) & x_{22,2}^2 + 1 \end{bmatrix}$
+
+**Agent 3:**
+- $f_{3,1} = [\cos^2(x_{31,1}), x_{31,1}^2]^T$
+- $f_{3,2} = [\sin(x_{32,2}) + x_{32,1}, 5x_{32,1}^3]^T$
+- $G_3 = \begin{bmatrix} x_{31,1}^2 + 1 & \cos(x_{31,1}) \\ \sin(x_{31,2}) & x_{31,1}^2 + 3 \end{bmatrix}$
+
+**Agent 4:**
+- $f_{4,1} = [\sin^2(x_{41,1}), x_{41,1}^2]^T$
+- $f_{4,2} = [\cos(x_{42,2}) + x_{42,1}, 5x_{42,1}^2]^T$
+- $G_4 = \begin{bmatrix} x_{41,1}^2 + 2 & \cos(x_{41,1}) \\ \sin(x_{41,2}) & x_{41,1}^2 + 3 \end{bmatrix}$
+
+### Initial Conditions
+The simulation initializes the 16 continuous ODE states natively (vector `x[16]` in `main.cpp`) mapping to $x_{i,1}$ and $x_{i,2}$ components:
+
+- **Agent 1:** $x_{1,1}(0) = [-0.1, -0.2]^T$, $x_{1,2}(0) = [0.0, 0.0]^T$
+- **Agent 2:** $x_{2,1}(0) = [0.15, 0.1]^T$, $x_{2,2}(0) = [0.0, 0.0]^T$
+- **Agent 3:** $x_{3,1}(0) = [0.0, 0.0]^T$, $x_{3,2}(0) = [0.0, 0.0]^T$
+- **Agent 4:** $x_{4,1}(0) = [0.1, -0.3]^T$, $x_{4,2}(0) = [0.0, 0.0]^T$
+
+The leader tracking trajectory follows the harmonic oscillator initialization dynamically over time: $x_{0,1}(t) = [0.2 \cos(0.4\pi t), 0.2 \sin(0.4\pi t)]^T$.
+
+## Prerequisites (Windows)
+
+To compile this C++ project on Windows, you will need a C++ compiler (GCC), CMake, and the mathematical library headers (Eigen3 & Boost). The easiest way to get all of this is via **MSYS2**.
+
+### 1. Install MSYS2
+1. Download the installer from the official website: [msys2.org](https://www.msys2.org/)
+2. Run the installer and follow the default installation instructions.
+
+### 2. Install the Required Packages
+Once installed, open the **MSYS2 UCRT64** terminal from your Windows Start Menu (make sure it's the `UCRT64` one, not MSYS or MINGW64).
+
+Run the following command to download and install GCC, CMake, Make, Eigen3, and Boost in one go:
+```bash
+pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-eigen3 mingw-w64-ucrt-x86_64-boost
+```
+Press `Enter` when it asks if you want to proceed.
+
+### 3. Add to Windows PATH
+To allow PowerShell and Windows to see the newly installed tools:
+1. Open the Windows Start menu, type **"Environment Variables"** and select **"Edit the system environment variables"**.
+2. Click the **"Environment Variables..."** button at the bottom.
+3. Under "User variables", find the `Path` variable, select it, and click **Edit...**.
+4. Click **New** and paste exactly: `C:\msys64\ucrt64\bin`
+5. Click OK on all windows to save and exit.
+
+*Note: You may need to restart your terminal (or VS Code) for the PATH changes to take effect.*
+
+---
+
+## Building the Simulation
+
+Open a PowerShell terminal in your project directory (`cpp_ppc`). Run the following CMake commands to generate the build files and compile the executable:
+
+```powershell
+# 1. Generate the build environment
+cmake -B build -G "MinGW Makefiles"
+
+# 2. Compile the executable
+cmake --build build
+```
+
+This will create `PPC_Simulation.exe` inside the `build` folder.
+
+## Running the Simulation
+
+Execute the compiled program from PowerShell:
+```powershell
+.\build\PPC_Simulation.exe
+```
+You should see output indicating the integration loop has started. When finished, it will generate a large `simulation_results.csv` file consisting of ~87,000 steps of trajectory logging.
+
+## Plotting the Results
+A Python script (`plot_results.py`) is provided to read the CSV file and recreate the MATLAB visualization plots. 
+
+Make sure you have Python installed, as well as the `pandas` and `matplotlib` packages:
+```powershell
+pip install pandas matplotlib numpy
+```
+
+Run the visualizer:
+```powershell
+python plot_results.py
+```
+This will display the graphs and automatically save them as `trajectories.png` and `tracking_error_agent1.png` in the root folder.

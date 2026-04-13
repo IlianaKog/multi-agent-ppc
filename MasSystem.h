@@ -4,7 +4,7 @@
 #include <vector>
 
 // Define the state type for Boost.Odeint. 
-// The system has 16 ODE states (8 agents * 2 dimensions).
+// The system has 16 ODE states (4 agents * 2 states * 2 dimensions each state).
 typedef Eigen::Matrix<double, 16, 1> state_type;
 
 class MasSystem {
